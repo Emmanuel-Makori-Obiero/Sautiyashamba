@@ -1,0 +1,2575 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sauti ya Shamba — Phone Simulator</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ═══════════════════════════════════════════════════════════
+   ROOT & RESET
+═══════════════════════════════════════════════════════════ */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --forest: #2d5016;
+        --olive: #4a7c2a;
+        --lime: #7ec850;
+        --lime2: #a8e063;
+        --sand: #f5f0e8;
+        --rust: #8b4513;
+        --slate: #334155;
+        --muted: #64748b;
+        --bg: #0e1a08;
+        --surface: #162010;
+        --surface2: #1e2d12;
+        --white: #ffffff;
+        --text: #e8f5e0;
+        --btn-bg: #1a2a0f;
+        --btn-face: #2d4a1a;
+        --btn-hi: #3d6425;
+        --btn-sh: #0a0f06;
+        --screen-bg: #c8e8a0;
+        --screen-txt: #0a1a04;
+        --screen-hi: #4a7c2a;
+        --nokia-body: #2a2a35;
+        --nokia-mid: #1e1e28;
+        --nokia-key: #3a3a48;
+        --touch-bg: #111;
+        --touch-screen: #0d1b00;
+        --red-btn: #c0392b;
+        --green-btn: #27ae60;
+        --glow: 0 0 20px rgba(126, 200, 80, 0.3);
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* ═══════════════════════════════════════════════════════════
+   PAGE HEADER
+═══════════════════════════════════════════════════════════ */
+      .page-header {
+        background: linear-gradient(135deg, var(--forest) 0%, #0d2006 100%);
+        padding: 2rem 2rem 1.5rem;
+        text-align: center;
+        border-bottom: 1px solid rgba(126, 200, 80, 0.15);
+        position: relative;
+        overflow: hidden;
+      }
+      .page-header::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(
+          circle,
+          rgba(78, 160, 30, 0.12) 0%,
+          transparent 70%
+        );
+        border-radius: 50%;
+      }
+      .header-badge {
+        display: inline-block;
+        background: rgba(126, 200, 80, 0.12);
+        border: 1px solid rgba(126, 200, 80, 0.3);
+        color: var(--lime2);
+        padding: 4px 14px;
+        border-radius: 100px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        margin-bottom: 0.8rem;
+      }
+      .page-header h1 {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(1.6rem, 4vw, 2.4rem);
+        color: var(--white);
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+      }
+      .page-header p {
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 0.9rem;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      /* Language Selector */
+      .lang-bar {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+      }
+      .lang-btn {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.7);
+        padding: 0.35rem 0.9rem;
+        border-radius: 100px;
+        font-size: 0.78rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: "DM Sans", sans-serif;
+      }
+      .lang-btn:hover,
+      .lang-btn.active {
+        background: var(--lime);
+        color: var(--forest);
+        border-color: var(--lime);
+        font-weight: 700;
+      }
+
+      /* Mute / Volume */
+      .controls-bar {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        align-items: center;
+        margin-top: 0.75rem;
+      }
+      .ctrl-btn {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.75);
+        padding: 0.4rem 1rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: "DM Sans", sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .ctrl-btn:hover {
+        background: rgba(255, 255, 255, 0.14);
+      }
+      .ctrl-btn.active {
+        background: rgba(220, 38, 38, 0.25);
+        border-color: rgba(220, 38, 38, 0.5);
+        color: #fca5a5;
+      }
+      .vol-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 2px;
+        outline: none;
+        cursor: pointer;
+      }
+      .vol-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px;
+        height: 14px;
+        background: var(--lime);
+        border-radius: 50%;
+        cursor: pointer;
+      }
+
+      /* ═══════════════════════════════════════════════════════════
+   DUAL SIMULATOR LAYOUT
+═══════════════════════════════════════════════════════════ */
+      .simulators {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        padding: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        align-items: start;
+      }
+      @media (max-width: 720px) {
+        .simulators {
+          grid-template-columns: 1fr;
+          padding: 1rem;
+        }
+      }
+      .sim-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+      .sim-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--lime);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .sim-sublabel {
+        font-size: 0.7rem;
+        color: var(--muted);
+        text-align: center;
+        line-height: 1.5;
+      }
+
+      /* ═══════════════════════════════════════════════════════════
+   NOKIA / MULIKA MWIZI PHONE
+═══════════════════════════════════════════════════════════ */
+      .nokia {
+        width: 200px;
+        background: linear-gradient(
+          175deg,
+          #3a3a4a 0%,
+          #22222e 40%,
+          #1a1a24 100%
+        );
+        border-radius: 20px 20px 28px 28px;
+        padding: 12px 10px 20px;
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.06),
+          0 20px 60px rgba(0, 0, 0, 0.8),
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 0 30px rgba(0, 0, 0, 0.5);
+        position: relative;
+        user-select: none;
+      }
+
+      /* Top speaker grille */
+      .nokia-top {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 8px;
+      }
+      .nokia-speaker-grille {
+        display: flex;
+        gap: 2px;
+      }
+      .nokia-speaker-grille span {
+        width: 3px;
+        height: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+      }
+
+      /* Screen */
+      .nokia-screen-bezel {
+        background: #111;
+        border-radius: 6px;
+        padding: 3px;
+        margin-bottom: 10px;
+        box-shadow:
+          inset 0 2px 8px rgba(0, 0, 0, 0.8),
+          0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+      .nokia-screen {
+        background: var(--screen-bg);
+        border-radius: 4px;
+        height: 90px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        font-family: "Share Tech Mono", monospace;
+        position: relative;
+      }
+      .nokia-status {
+        background: rgba(0, 50, 0, 0.15);
+        padding: 2px 5px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.5rem;
+        color: var(--screen-hi);
+      }
+      .nokia-screen-content {
+        flex: 1;
+        padding: 3px 5px;
+        font-size: 0.58rem;
+        color: var(--screen-txt);
+        line-height: 1.4;
+        overflow: hidden;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .nokia-screen-content.calling {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .nokia-softkeys-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 4px;
+        margin-bottom: 6px;
+        font-size: 0.5rem;
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      /* D-pad & center */
+      .nokia-dpad {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 3px;
+        margin: 0 auto 8px;
+        width: 80px;
+      }
+      .dpad-btn {
+        background: linear-gradient(145deg, #3a3a4a, #25252f);
+        border: none;
+        border-radius: 4px;
+        padding: 6px 4px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.55rem;
+        cursor: pointer;
+        transition: all 0.1s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        font-family: "Share Tech Mono", monospace;
+      }
+      .dpad-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+      .dpad-center {
+        background: linear-gradient(145deg, #4a7c2a, #2d5016);
+        color: var(--lime2);
+        font-size: 0.65rem;
+        font-weight: 700;
+      }
+      .dpad-empty {
+        background: transparent;
+        box-shadow: none;
+        cursor: default;
+      }
+
+      /* Call / End row */
+      .nokia-call-row {
+        display: flex;
+        gap: 6px;
+        justify-content: center;
+        margin-bottom: 8px;
+      }
+      .call-btn {
+        flex: 1;
+        padding: 7px 0;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.1s;
+        font-family: "DM Sans", sans-serif;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+      }
+      .call-btn:active {
+        transform: translateY(1px);
+      }
+      .call-btn.green {
+        background: linear-gradient(145deg, #2ecc71, #1e8449);
+        color: white;
+      }
+      .call-btn.red {
+        background: linear-gradient(145deg, #e74c3c, #922b21);
+        color: white;
+      }
+
+      /* Numpad */
+      .nokia-numpad {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+      }
+      .num-btn {
+        background: linear-gradient(145deg, var(--nokia-key), #28283a);
+        border: none;
+        border-radius: 5px;
+        padding: 7px 4px 5px;
+        cursor: pointer;
+        transition: all 0.1s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow:
+          0 2px 5px rgba(0, 0, 0, 0.6),
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        min-height: 32px;
+      }
+      .num-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+        background: linear-gradient(145deg, #28283a, var(--nokia-key));
+      }
+      .num-digit {
+        color: var(--lime2);
+        font-family: "Share Tech Mono", monospace;
+        font-size: 0.8rem;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .num-alpha {
+        color: rgba(255, 255, 255, 0.35);
+        font-size: 0.38rem;
+        letter-spacing: 0.5px;
+        margin-top: 1px;
+      }
+      .num-btn.star .num-digit,
+      .num-btn.hash .num-digit {
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      /* Antenna nub */
+      .nokia-antenna {
+        position: absolute;
+        top: -8px;
+        right: 18px;
+        width: 6px;
+        height: 14px;
+        background: linear-gradient(to bottom, #4a4a5a, #2a2a38);
+        border-radius: 3px;
+        box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      /* ═══════════════════════════════════════════════════════════
+   TOUCH SCREEN PHONE (Smartphone)
+═══════════════════════════════════════════════════════════ */
+      .smartphone {
+        width: 200px;
+        background: linear-gradient(175deg, #1c1c1e, #0a0a0c);
+        border-radius: 36px;
+        padding: 10px;
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.08),
+          0 0 0 2px rgba(0, 0, 0, 0.8),
+          0 30px 80px rgba(0, 0, 0, 0.9),
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        user-select: none;
+      }
+      .sp-notch-bar {
+        background: #0a0a0a;
+        border-radius: 28px 28px 0 0;
+        height: 32px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding-bottom: 6px;
+        gap: 6px;
+        position: relative;
+      }
+      .sp-cam {
+        width: 8px;
+        height: 8px;
+        background: #1a1a1a;
+        border-radius: 50%;
+        border: 1.5px solid #333;
+      }
+      .sp-earpiece {
+        width: 40px;
+        height: 4px;
+        background: #1a1a1a;
+        border-radius: 2px;
+      }
+      .sp-status-bar {
+        background: var(--forest);
+        padding: 4px 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.5rem;
+        font-family: "Share Tech Mono", monospace;
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .sp-screen {
+        background: var(--touch-screen);
+        height: 300px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+      .sp-home-screen {
+        flex: 1;
+        background: linear-gradient(160deg, #0a1a04, #0d2206);
+        display: flex;
+        flex-direction: column;
+        padding: 8px;
+      }
+      .sp-time-display {
+        text-align: center;
+        padding: 12px 0 8px;
+        color: white;
+      }
+      .sp-clock {
+        font-family: "Share Tech Mono", monospace;
+        font-size: 1.8rem;
+        color: white;
+        line-height: 1;
+      }
+      .sp-date {
+        font-size: 0.55rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 2px;
+      }
+      .sp-app-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        padding: 8px 4px;
+      }
+      .sp-app {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        cursor: pointer;
+      }
+      .sp-app-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        transition: transform 0.15s;
+      }
+      .sp-app-icon:active {
+        transform: scale(0.9);
+      }
+      .sp-app-lbl {
+        font-size: 0.42rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+      }
+
+      /* Sauti app icon */
+      .icon-sauti {
+        background: linear-gradient(135deg, var(--forest), var(--olive));
+      }
+      .icon-ussd {
+        background: linear-gradient(135deg, #1a3a5c, #0d2040);
+      }
+      .icon-sms {
+        background: linear-gradient(135deg, #4a1a5c, #2a0d40);
+      }
+      .icon-mpesa {
+        background: linear-gradient(135deg, #1a5c1a, #0d400d);
+      }
+      .icon-kalro {
+        background: linear-gradient(135deg, #5c3a1a, #401a0d);
+      }
+      .icon-weather {
+        background: linear-gradient(135deg, #1a4a5c, #0d2840);
+      }
+
+      /* SP call screen */
+      .sp-call-screen {
+        flex: 1;
+        background: linear-gradient(160deg, #0a1a04, #071204);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 12px 8px 8px;
+        display: none;
+      }
+      .sp-call-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--forest), var(--olive));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        margin-bottom: 6px;
+        box-shadow: 0 0 20px rgba(78, 160, 30, 0.3);
+      }
+      .sp-call-name {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: white;
+      }
+      .sp-call-status {
+        font-size: 0.6rem;
+        color: var(--lime);
+        margin-bottom: 4px;
+      }
+      .sp-call-timer {
+        font-family: "Share Tech Mono", monospace;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+      }
+      .sp-call-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: auto;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .sp-act-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .sp-act-btn:active {
+        transform: scale(0.9);
+      }
+      .sp-act-mute {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+      .sp-act-mute.muted {
+        background: rgba(220, 38, 38, 0.3);
+        color: #fca5a5;
+      }
+      .sp-act-speaker {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+      .sp-act-speaker.on {
+        background: rgba(126, 200, 80, 0.2);
+        color: var(--lime);
+      }
+      .sp-act-end {
+        background: #e74c3c;
+        color: white;
+        width: 46px;
+        height: 46px;
+        font-size: 1.1rem;
+      }
+      .sp-act-keypad {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      /* USSD SP screen */
+      .sp-ussd-screen {
+        flex: 1;
+        background: #001200;
+        display: none;
+        flex-direction: column;
+        padding: 6px;
+      }
+      .sp-ussd-box {
+        background: #001a00;
+        border: 1px solid #003300;
+        border-radius: 4px;
+        padding: 6px;
+        font-family: "Share Tech Mono", monospace;
+        font-size: 0.55rem;
+        color: #00ff41;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        min-height: 80px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      .sp-ussd-input-row {
+        display: flex;
+        gap: 4px;
+        margin-top: 6px;
+      }
+      .sp-ussd-input {
+        flex: 1;
+        background: #001500;
+        border: 1px solid #003300;
+        color: #00ff41;
+        font-family: "Share Tech Mono", monospace;
+        font-size: 0.6rem;
+        padding: 4px 6px;
+        border-radius: 3px;
+        outline: none;
+      }
+      .sp-ussd-send {
+        background: #003300;
+        border: 1px solid #005500;
+        color: #00ff41;
+        font-size: 0.6rem;
+        padding: 4px 8px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-family: "Share Tech Mono", monospace;
+      }
+
+      /* SP bottom bar */
+      .sp-bottom-bar {
+        background: #0a0a0a;
+        border-radius: 0 0 28px 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .sp-home-btn {
+        width: 22px;
+        height: 4px;
+        background: #333;
+        border-radius: 2px;
+        cursor: pointer;
+      }
+
+      /* Chat screen for SP */
+      .sp-chat-screen {
+        flex: 1;
+        background: #0d1b00;
+        display: none;
+        flex-direction: column;
+      }
+      .sp-chat-header {
+        background: var(--forest);
+        padding: 6px 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .sp-chat-title {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: white;
+      }
+      .sp-chat-back {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.8rem;
+        cursor: pointer;
+      }
+      .sp-chat-msgs {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .sp-chat-msgs::-webkit-scrollbar {
+        display: none;
+      }
+      .sp-msg {
+        max-width: 85%;
+        padding: 6px 9px;
+        border-radius: 10px;
+        font-size: 0.65rem;
+        line-height: 1.4;
+        animation: msgIn 0.25s ease;
+      }
+      @keyframes msgIn {
+        from {
+          opacity: 0;
+          transform: translateY(5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .sp-msg-ai {
+        align-self: flex-start;
+        background: rgba(45, 80, 22, 0.85);
+        color: #d4f0b0;
+        border-bottom-left-radius: 3px;
+      }
+      .sp-msg-user {
+        align-self: flex-end;
+        background: #1a3a5c;
+        color: #c0d8f0;
+        border-bottom-right-radius: 3px;
+      }
+      .sp-msg-time {
+        font-size: 0.5rem;
+        color: rgba(255, 255, 255, 0.3);
+        margin-top: 2px;
+        text-align: right;
+      }
+      .sp-chat-input-area {
+        background: #111;
+        padding: 6px;
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+      .sp-chat-input {
+        flex: 1;
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        border-radius: 14px;
+        padding: 5px 10px;
+        color: white;
+        font-size: 0.65rem;
+        outline: none;
+        font-family: "DM Sans", sans-serif;
+      }
+      .sp-chat-send {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--forest);
+        border: none;
+        cursor: pointer;
+        color: white;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .sp-mic-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.75rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+      }
+      .sp-mic-btn.listening {
+        background: rgba(220, 38, 38, 0.3);
+        color: #fca5a5;
+        animation: pulseRed 1s infinite;
+      }
+      @keyframes pulseRed {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 0 6px rgba(220, 38, 38, 0);
+        }
+      }
+
+      /* ═══════════════════════════════════════════════════════════
+   SHARED CALL STATUS BAR
+═══════════════════════════════════════════════════════════ */
+      .call-status-bar {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 2rem 1rem;
+      }
+      .call-status-inner {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(126, 200, 80, 0.15);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.82rem;
+      }
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #555;
+      }
+      .status-dot.idle {
+        background: #555;
+      }
+      .status-dot.calling {
+        background: #f59e0b;
+        animation: blink 1s infinite;
+      }
+      .status-dot.active {
+        background: var(--lime);
+        animation: blink 2s infinite;
+      }
+      .status-dot.listening {
+        background: #3b82f6;
+        animation: blink 0.8s infinite;
+      }
+      .status-dot.thinking {
+        background: #a855f7;
+        animation: blink 0.5s infinite;
+      }
+      .status-dot.speaking {
+        background: var(--lime);
+        animation: blink 0.4s infinite;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.2;
+        }
+      }
+
+      .transcript-area {
+        flex: 1;
+        min-width: 200px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-style: italic;
+        min-height: 36px;
+        line-height: 1.5;
+      }
+      .transcript-area.user-speaking {
+        border-left: 3px solid #3b82f6;
+      }
+      .transcript-area.ai-speaking {
+        border-left: 3px solid var(--lime);
+      }
+
+      /* ═══════════════════════════════════════════════════════════
+   SCENARIO PANEL
+═══════════════════════════════════════════════════════════ */
+      .scenario-panel {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 2rem 2rem;
+      }
+      .scenario-panel h3 {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--lime);
+        margin-bottom: 0.75rem;
+      }
+      .scenario-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.75rem;
+      }
+      .scen-btn {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: "DM Sans", sans-serif;
+        color: var(--text);
+      }
+      .scen-btn:hover {
+        background: rgba(126, 200, 80, 0.08);
+        border-color: rgba(126, 200, 80, 0.3);
+      }
+      .scen-btn.active {
+        background: rgba(45, 80, 22, 0.5);
+        border-color: var(--lime);
+      }
+      .scen-icon {
+        font-size: 1.3rem;
+        margin-bottom: 0.3rem;
+        display: block;
+      }
+      .scen-title {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--lime2);
+      }
+      .scen-desc {
+        font-size: 0.72rem;
+        color: var(--muted);
+        margin-top: 2px;
+        line-height: 1.4;
+      }
+
+      /* ═══════════════════════════════════════════════════════════
+   VOICE WAVE VISUALISER
+═══════════════════════════════════════════════════════════ */
+      .wave-viz {
+        display: flex;
+        gap: 2px;
+        align-items: center;
+        height: 20px;
+      }
+      .wave-bar {
+        width: 3px;
+        background: var(--lime);
+        border-radius: 2px;
+        opacity: 0.4;
+        animation: waveIdle 1.5s ease-in-out infinite;
+      }
+      .wave-bar:nth-child(1) {
+        animation-delay: 0s;
+      }
+      .wave-bar:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      .wave-bar:nth-child(3) {
+        animation-delay: 0.2s;
+      }
+      .wave-bar:nth-child(4) {
+        animation-delay: 0.3s;
+      }
+      .wave-bar:nth-child(5) {
+        animation-delay: 0.4s;
+      }
+      @keyframes waveIdle {
+        0%,
+        100% {
+          height: 4px;
+          opacity: 0.3;
+        }
+        50% {
+          height: 8px;
+          opacity: 0.6;
+        }
+      }
+      .wave-viz.active .wave-bar {
+        animation: waveActive 0.4s ease-in-out infinite;
+        opacity: 0.9;
+      }
+      .wave-viz.active .wave-bar:nth-child(1) {
+        animation-delay: 0s;
+      }
+      .wave-viz.active .wave-bar:nth-child(2) {
+        animation-delay: 0.05s;
+      }
+      .wave-viz.active .wave-bar:nth-child(3) {
+        animation-delay: 0.1s;
+      }
+      .wave-viz.active .wave-bar:nth-child(4) {
+        animation-delay: 0.15s;
+      }
+      .wave-viz.active .wave-bar:nth-child(5) {
+        animation-delay: 0.2s;
+      }
+      @keyframes waveActive {
+        0%,
+        100% {
+          height: 4px;
+        }
+        50% {
+          height: 18px;
+        }
+      }
+
+      /* ═══════════════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════════════ */
+      .page-footer {
+        text-align: center;
+        padding: 1.5rem 2rem;
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .page-footer strong {
+        color: var(--lime);
+      }
+
+      /* Typing indicator */
+      .typing-indicator {
+        display: none;
+        align-self: flex-start;
+        background: rgba(45, 80, 22, 0.6);
+        padding: 6px 10px;
+        border-radius: 10px;
+        border-bottom-left-radius: 3px;
+      }
+      .typing-dots {
+        display: flex;
+        gap: 3px;
+        align-items: center;
+      }
+      .typing-dots span {
+        width: 5px;
+        height: 5px;
+        background: var(--lime);
+        border-radius: 50%;
+        animation: td 0.9s infinite;
+      }
+      .typing-dots span:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+      .typing-dots span:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      @keyframes td {
+        0%,
+        80%,
+        100% {
+          transform: scale(0.6);
+          opacity: 0.4;
+        }
+        40% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ══ PAGE HEADER ═══════════════════════════════════════════════ -->
+    <div class="page-header">
+      <div class="header-badge">
+        📱 Live Interactive Demo — Investor Edition
+      </div>
+      <h1>
+        Sauti ya Shamba<br /><span
+          style="
+            font-style: italic;
+            font-weight: 400;
+            font-size: 70%;
+            color: rgba(255, 255, 255, 0.7);
+          "
+          >"The Voice of the Farm"</span
+        >
+      </h1>
+      <p>
+        Experience the exact system Mama Njeri uses — on a real Mulika Mwizi
+        button phone <em>and</em> a smartphone. Live AI. Real microphone. Your
+        language.
+      </p>
+
+      <!-- Language selector -->
+      <div class="lang-bar">
+        <button class="lang-btn active" onclick="setLang('sw')">
+          🇰🇪 Kiswahili
+        </button>
+        <button class="lang-btn" onclick="setLang('ki')">🌿 Gĩkũyũ</button>
+        <button class="lang-btn" onclick="setLang('guz')">🌾 Ekegusii</button>
+        <button class="lang-btn" onclick="setLang('en')">🌐 English</button>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-bar">
+        <button class="ctrl-btn" id="muteBtn" onclick="toggleMute()">
+          🔊 Sound ON
+        </button>
+        <span style="font-size: 0.75rem; color: var(--muted)">Volume:</span>
+        <input
+          type="range"
+          class="vol-slider"
+          id="volSlider"
+          min="0"
+          max="1"
+          step="0.05"
+          value="0.85"
+          oninput="setVolume(this.value)"
+        />
+        <button class="ctrl-btn" id="micBtn" onclick="toggleMic()">
+          🎤 Use Mic
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ CALL STATUS BAR ════════════════════════════════════════════ -->
+    <div class="call-status-bar">
+      <div class="call-status-inner">
+        <div class="status-indicator">
+          <div class="status-dot idle" id="statusDot"></div>
+          <span id="statusText" style="color: var(--muted)"
+            >Ready — press Call or select a scenario</span
+          >
+          <div class="wave-viz" id="waveViz">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+          </div>
+        </div>
+        <div class="transcript-area" id="transcriptArea">
+          AI and voice transcripts appear here in real-time...
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ DUAL SIMULATORS ═══════════════════════════════════════════ -->
+    <div class="simulators">
+      <!-- ─── MULIKA MWIZI (Nokia-style button phone) ─────────────── -->
+      <div class="sim-wrapper">
+        <div class="sim-label">📟 Mulika Mwizi</div>
+        <div class="sim-sublabel">
+          Basic feature phone · No internet · IVR + USSD<br /><em
+            >"The phone that will not die"</em
+          >
+        </div>
+
+        <div class="nokia" id="nokiaPhone">
+          <div class="nokia-antenna"></div>
+
+          <!-- Speaker grille -->
+          <div class="nokia-top">
+            <div class="nokia-speaker-grille">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <!-- Screen -->
+          <div class="nokia-screen-bezel">
+            <div class="nokia-screen" id="nokiaScreen">
+              <div class="nokia-status">
+                <span id="nk-signal">▌▌▌ Safaricom</span>
+                <span id="nk-time">09:14</span>
+                <span id="nk-bat">🔋</span>
+              </div>
+              <div class="nokia-screen-content" id="nkContent">
+                SAUTI YA SHAMBA ━━━━━━━━━━ Toll-Free 0800-SHAMBA Press ✅ to
+                Call Press # for USSD
+              </div>
+            </div>
+          </div>
+
+          <!-- Soft key labels -->
+          <div class="nokia-softkeys-row">
+            <span id="nk-lsk">Menu</span>
+            <span></span>
+            <span id="nk-rsk">Back</span>
+          </div>
+
+          <!-- D-pad -->
+          <div class="nokia-dpad">
+            <div class="dpad-empty"></div>
+            <button class="dpad-btn" onclick="nokiaDpad('up')">▲</button>
+            <div class="dpad-empty"></div>
+            <button class="dpad-btn" onclick="nokiaDpad('left')">◀</button>
+            <button class="dpad-btn dpad-center" onclick="nokiaSelect()">
+              OK
+            </button>
+            <button class="dpad-btn" onclick="nokiaDpad('right')">▶</button>
+            <div class="dpad-empty"></div>
+            <button class="dpad-btn" onclick="nokiaDpad('down')">▼</button>
+            <div class="dpad-empty"></div>
+          </div>
+
+          <!-- Call / End -->
+          <div class="nokia-call-row">
+            <button class="call-btn green" id="nkCallBtn" onclick="nokiaCall()">
+              📞 Call
+            </button>
+            <button class="call-btn red" onclick="nokiaEnd()">⬛ End</button>
+          </div>
+
+          <!-- Numpad -->
+          <div class="nokia-numpad">
+            <button class="num-btn" onclick="nokiaKey('1')">
+              <span class="num-digit">1</span><span class="num-alpha"></span>
+            </button>
+            <button class="num-btn" onclick="nokiaKey('2')">
+              <span class="num-digit">2</span><span class="num-alpha">ABC</span>
+            </button>
+            <button class="num-btn" onclick="nokiaKey('3')">
+              <span class="num-digit">3</span><span class="num-alpha">DEF</span>
+            </button>
+            <button class="num-btn" onclick="nokiaKey('4')">
+              <span class="num-digit">4</span><span class="num-alpha">GHI</span>
+            </button>
+            <button class="num-btn" onclick="nokiaKey('5')">
+              <span class="num-digit">5</span><span class="num-alpha">JKL</span>
+            </button>
+            <button class="num-btn" onclick="nokiaKey('6')">
+              <span class="num-digit">6</span><span class="num-alpha">MNO</span>
+            </button>
+            <button class="num-btn" onclick="nokiaKey('7')">
+              <span class="num-digit">7</span
+              ><span class="num-alpha">PQRS</span>
+            </button>
+            <button class="num-btn" onclick="nokiaKey('8')">
+              <span class="num-digit">8</span><span class="num-alpha">TUV</span>
+            </button>
+            <button class="num-btn" onclick="nokiaKey('9')">
+              <span class="num-digit">9</span
+              ><span class="num-alpha">WXYZ</span>
+            </button>
+            <button class="num-btn star" onclick="nokiaKey('*')">
+              <span class="num-digit">*</span>
+            </button>
+            <button class="num-btn" onclick="nokiaKey('0')">
+              <span class="num-digit">0</span><span class="num-alpha">+</span>
+            </button>
+            <button class="num-btn hash" onclick="nokiaUSSD()">
+              <span class="num-digit">#</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── SMARTPHONE ──────────────────────────────────────────── -->
+      <div class="sim-wrapper">
+        <div class="sim-label">📱 Smartphone</div>
+        <div class="sim-sublabel">
+          WhatsApp / Voice App · Low-data mode<br /><em
+            >For urban relatives &amp; young farmers</em
+          >
+        </div>
+
+        <div class="smartphone" id="smartphone">
+          <div class="sp-notch-bar">
+            <div class="sp-cam"></div>
+            <div class="sp-earpiece"></div>
+          </div>
+
+          <!-- Status bar -->
+          <div class="sp-status-bar">
+            <span>▌▌▌ Safaricom</span>
+            <span id="sp-time">09:14</span>
+            <span>🔋 78%</span>
+          </div>
+
+          <!-- Screen container -->
+          <div class="sp-screen">
+            <!-- Home screen -->
+            <div class="sp-home-screen" id="spHome">
+              <div class="sp-time-display">
+                <div class="sp-clock" id="spClock">09:14</div>
+                <div class="sp-date">Thursday, April 2026</div>
+              </div>
+              <div class="sp-app-grid">
+                <div class="sp-app" onclick="spOpenSauti()">
+                  <div class="sp-app-icon icon-sauti">🌾</div>
+                  <div class="sp-app-lbl">Sauti ya Shamba</div>
+                </div>
+                <div class="sp-app" onclick="spOpenUSSD()">
+                  <div class="sp-app-icon icon-ussd">📟</div>
+                  <div class="sp-app-lbl">USSD *384#</div>
+                </div>
+                <div class="sp-app" onclick="spOpenSMS()">
+                  <div class="sp-app-icon icon-sms">💬</div>
+                  <div class="sp-app-lbl">SMS Digest</div>
+                </div>
+                <div class="sp-app">
+                  <div class="sp-app-icon icon-mpesa">💚</div>
+                  <div class="sp-app-lbl">M-PESA</div>
+                </div>
+                <div class="sp-app">
+                  <div class="sp-app-icon icon-kalro">🌱</div>
+                  <div class="sp-app-lbl">KALRO Alerts</div>
+                </div>
+                <div class="sp-app">
+                  <div class="sp-app-icon icon-weather">⛅</div>
+                  <div class="sp-app-lbl">Weather</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Call screen (hidden initially) -->
+            <div class="sp-call-screen" id="spCallScreen">
+              <div class="sp-call-avatar">🌾</div>
+              <div class="sp-call-name">Sauti ya Shamba</div>
+              <div class="sp-call-status" id="spCallStatus">Calling...</div>
+              <div class="sp-call-timer" id="spCallTimer">00:00</div>
+              <div class="sp-call-actions">
+                <button
+                  class="sp-act-btn sp-act-mute"
+                  id="spMuteBtn"
+                  onclick="spToggleMute()"
+                  title="Mute"
+                >
+                  🎤
+                </button>
+                <button
+                  class="sp-act-btn sp-act-speaker"
+                  id="spSpeakerBtn"
+                  onclick="spToggleSpeaker()"
+                  title="Speaker"
+                >
+                  🔈
+                </button>
+                <button
+                  class="sp-act-btn sp-act-keypad"
+                  onclick="spShowKeypad()"
+                  title="Keypad"
+                >
+                  ⌨️
+                </button>
+                <button
+                  class="sp-act-btn sp-act-end"
+                  onclick="spEndCall()"
+                  title="End Call"
+                >
+                  📵
+                </button>
+              </div>
+            </div>
+
+            <!-- Chat screen (hidden) -->
+            <div class="sp-chat-screen" id="spChatScreen">
+              <div class="sp-chat-header">
+                <button class="sp-chat-back" onclick="spGoHome()">←</button>
+                <div
+                  style="
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 50%;
+                    background: var(--forest);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.7rem;
+                  "
+                >
+                  🌾
+                </div>
+                <div class="sp-chat-title">Sauti ya Shamba</div>
+                <div
+                  style="
+                    margin-left: auto;
+                    font-size: 0.55rem;
+                    color: var(--lime);
+                  "
+                >
+                  ● Online
+                </div>
+              </div>
+              <div class="sp-chat-msgs" id="spChatMsgs">
+                <div class="typing-indicator" id="spTyping">
+                  <div class="typing-dots">
+                    <span></span><span></span><span></span>
+                  </div>
+                </div>
+              </div>
+              <div class="sp-chat-input-area">
+                <button
+                  class="sp-mic-btn"
+                  id="spMicBtn"
+                  onclick="spMicPress()"
+                  title="Hold to speak"
+                >
+                  🎤
+                </button>
+                <input
+                  class="sp-chat-input"
+                  id="spChatInput"
+                  placeholder="Type in Swahili, Gĩkũyũ or English..."
+                  onkeypress="spChatKey(event)"
+                />
+                <button class="sp-chat-send" onclick="spSendMsg()">➤</button>
+              </div>
+            </div>
+
+            <!-- USSD screen (hidden) -->
+            <div class="sp-ussd-screen" id="spUSSDScreen">
+              <div
+                style="
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 0.55rem;
+                  color: #00aa22;
+                  padding: 3px 0 5px;
+                  border-bottom: 1px solid #003300;
+                  margin-bottom: 5px;
+                "
+              >
+                USSD SESSION — *384# — Sauti ya Shamba
+              </div>
+              <div class="sp-ussd-box" id="spUSSDBox">
+                Connecting to *384#...
+              </div>
+              <div class="sp-ussd-input-row">
+                <input
+                  class="sp-ussd-input"
+                  id="spUSSDInput"
+                  placeholder="Enter option..."
+                  onkeypress="spUSSDKey(event)"
+                />
+                <button class="sp-ussd-send" onclick="spUSSDSend()">
+                  SEND
+                </button>
+                <button
+                  class="sp-ussd-send"
+                  onclick="spGoHome()"
+                  style="
+                    background: #1a0000;
+                    border-color: #550000;
+                    color: #ff6666;
+                  "
+                >
+                  END
+                </button>
+              </div>
+            </div>
+
+            <!-- SMS screen (hidden) -->
+            <div
+              id="spSMSScreen"
+              style="
+                display: none;
+                flex-direction: column;
+                flex: 1;
+                background: #0a0f05;
+                padding: 8px;
+              "
+            >
+              <div
+                style="
+                  font-family: &quot;Share Tech Mono&quot;, monospace;
+                  font-size: 0.55rem;
+                  color: var(--lime);
+                  margin-bottom: 6px;
+                  border-bottom: 1px solid #1a2a10;
+                  padding-bottom: 4px;
+                "
+              >
+                📥 SMS DIGEST — Sauti ya Shamba
+              </div>
+              <div
+                id="spSMSList"
+                style="
+                  font-size: 0.6rem;
+                  color: rgba(255, 255, 255, 0.7);
+                  line-height: 1.6;
+                "
+              ></div>
+              <button
+                onclick="spGoHome()"
+                style="
+                  margin-top: auto;
+                  background: var(--forest);
+                  border: none;
+                  color: white;
+                  padding: 5px;
+                  border-radius: 4px;
+                  font-size: 0.6rem;
+                  cursor: pointer;
+                "
+              >
+                ← Back
+              </button>
+            </div>
+          </div>
+          <!-- end sp-screen -->
+
+          <div class="sp-bottom-bar">
+            <div class="sp-home-btn" onclick="spGoHome()" title="Home"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- end simulators -->
+
+    <!-- ══ SCENARIO PANEL ═════════════════════════════════════════════ -->
+    <div class="scenario-panel">
+      <h3>🎬 Demo Scenarios — Click to load on both phones</h3>
+      <div class="scenario-grid">
+        <button
+          class="scen-btn active"
+          onclick="selectScenario('fungus', this)"
+        >
+          <span class="scen-icon">🍃</span>
+          <div class="scen-title">Yellow Fungus — Kale</div>
+          <div class="scen-desc">
+            Mama Njeri's exact situation. Downy Mildew diagnosis in Swahili.
+          </div>
+        </button>
+        <button class="scen-btn" onclick="selectScenario('pest', this)">
+          <span class="scen-icon">🐛</span>
+          <div class="scen-title">Mwizi wa Fedha</div>
+          <div class="scen-desc">
+            Colloquial name → Spider Mites. Demonstrates AI language
+            intelligence.
+          </div>
+        </button>
+        <button class="scen-btn" onclick="selectScenario('banned', this)">
+          <span class="scen-icon">🚫</span>
+          <div class="scen-title">Banned Chemical Guard</div>
+          <div class="scen-desc">
+            Farmer asks for Paraquat. AI blocks it and offers safe alternatives.
+          </div>
+        </button>
+        <button class="scen-btn" onclick="selectScenario('kikuyu', this)">
+          <span class="scen-icon">🌿</span>
+          <div class="scen-title">Gĩkũyũ — Potato Blight</div>
+          <div class="scen-desc">
+            Full conversation in Gĩkũyũ. Late Blight diagnosis for Mt. Kenya.
+          </div>
+        </button>
+        <button class="scen-btn" onclick="selectScenario('gusii', this)">
+          <span class="scen-icon">🌾</span>
+          <div class="scen-title">Ekegusii — Maize Pest</div>
+          <div class="scen-desc">
+            Fall Armyworm consultation in Ekegusii (Kisii language).
+          </div>
+        </button>
+        <button class="scen-btn" onclick="selectScenario('live', this)">
+          <span class="scen-icon">🎤</span>
+          <div class="scen-title">LIVE — Speak to AI</div>
+          <div class="scen-desc">
+            Use YOUR microphone. Ask any farming question. AI responds in
+            real-time.
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ FOOTER ════════════════════════════════════════════════════ -->
+    <div class="page-footer">
+      <strong>Sauti ya Shamba</strong> · Emmanuel Makori Obiero · Investor Demo
+      v4.0 · 2026<br />
+      <span style="font-size: 0.7rem"
+        >Powered by Claude AI + KALRO/FAO Knowledge Base · Web Speech API · Runs
+        100% in-browser</span
+      >
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+     JAVASCRIPT ENGINE
+══════════════════════════════════════════════════════════════ -->
+    <script>
+      "use strict";
+
+      /* ─── STATE ──────────────────────────────────────────────────── */
+      let currentLang = "sw";
+      let isMuted = false;
+      let useMic = false;
+      let isCallActive = false;
+      let callTimer = null;
+      let callSeconds = 0;
+      let recognition = null;
+      let synth = window.speechSynthesis;
+      let currentScen = "fungus";
+      let nokiaMode = "home"; // home | calling | ussd | menu
+      let nokiaUSSDStep = 0;
+      let spCallTimerInterval = null;
+      let spCallSecs = 0;
+      let spMicMuted = false;
+      let spSpeakerOn = true;
+      let volume = 0.85;
+      let aiConversationHistory = [];
+
+      /* ─── LANGUAGE CONFIGS ───────────────────────────────────────── */
+      const LANGS = {
+        sw: {
+          name: "Kiswahili",
+          bcp: "sw-KE",
+          greeting:
+            "Habari za shamba? Mimi ni Sauti ya Shamba. Ninaweza kukusaidia leo. Niambie tatizo lako.",
+          voicePref: ["sw", "sw-KE", "sw-TZ"],
+        },
+        ki: {
+          name: "Gĩkũyũ",
+          bcp: "en-KE",
+          greeting:
+            "Nĩ ũhoro wako wega. Nĩ niĩ Sauti ya Shamba. Nĩngũkũteithia ũguo. Ũĩ na kĩndũ kĩanakũhingĩra?",
+          voicePref: ["ki", "en-KE", "en"],
+        },
+        guz: {
+          name: "Ekegusii",
+          bcp: "en-KE",
+          greeting:
+            "Amang'ana. Niabere Sauti ya Shamba. Omogaka, niwe na ente chinyi chosire omosego gwaku?",
+          voicePref: ["guz", "en-KE", "en"],
+        },
+        en: {
+          name: "English",
+          bcp: "en-KE",
+          greeting:
+            "Welcome to Sauti ya Shamba. I am your AI agricultural advisor. How can I help you today?",
+          voicePref: ["en-KE", "en-US", "en"],
+        },
+      };
+
+      /* ─── SCENARIO DATA ──────────────────────────────────────────── */
+      const SCENARIOS = {
+        fungus: {
+          lang: "sw",
+          nkUSSD: [
+            {
+              d: "SAUTI YA SHAMBA\n━━━━━━━━━━\n1. Magonjwa mazao\n2. Wadudu\n3. Mbolea\n4. Bei soko\n\nChagua:_",
+              opts: { 1: "disease_sw", "*": "home" },
+            },
+            {
+              id: "disease_sw",
+              d: "MAGONJWA\n━━━━━━━━\n1. Mahindi\n2. Viazi\n3. Kale/Sukuma\n4. Nyanya\n\nChagua:_",
+              opts: { 3: "kale_sw", 0: "home" },
+            },
+            {
+              id: "kale_sw",
+              d: "KALE - DALILI\n━━━━━━━━━\n1. Madoa njano\n2. Majani kunyauka\n3. Wadudu\n4. Kuoza\n\nChagua:_",
+              opts: { 1: "downy_sw", 0: "home" },
+            },
+            {
+              id: "downy_sw",
+              d: "✅ JIBU KALRO\n━━━━━━━━━━\nDOWNY MILDEW\n(Ukungu wa chini)\n\nDawa: Cobox 20g\nkwa lita 10 maji.\nNyunyizia wiki 1.\n\n0=Rudi 8=Mtu",
+              opts: { 0: "home", 8: "human" },
+            },
+          ],
+          chatMsgs: [
+            {
+              role: "ai",
+              text: "Habari za shamba? 🌿 Mimi ni Sauti ya Shamba — msaada wako wa kilimo wa AI. Niambie tatizo lako!",
+            },
+            {
+              role: "user",
+              text: "Majani yangu ya kale yana ukungu wa njano inayoenea haraka sana.",
+            },
+            {
+              role: "ai",
+              text: "🔍 Ninaangalia... [KALRO Fungal Database — Mt. Kenya Region]",
+            },
+            {
+              role: "ai",
+              text: "✅ Unaelezea **Downy Mildew** (Peronospora parasitica). Ugonjwa huu huenea kwa hewa yenye unyevu. Dalili kuu: ukungu wa njano juu ya jani, na ukungu wa kijivu chini ya jani.",
+            },
+            {
+              role: "ai",
+              text: "💊 **Suluhisho la KALRO:**\n1. Tumia **Copper Oxychloride (Cobox)** — 20g kwa lita 10 ya maji\n2. Nyunyizia majani yote, pamoja na chini\n3. Rudia kila siku 7 mara 3\n4. Ondoa majani yaliyoathirika kwanza\n\nDawa hii ni SALAMA na inapatikana agrovets.",
+            },
+          ],
+        },
+        pest: {
+          lang: "sw",
+          chatMsgs: [
+            {
+              role: "ai",
+              text: "Habari! Ninakusaidia sasa hivi. Una tatizo gani shambani?",
+            },
+            {
+              role: "user",
+              text: "Mwizi wa fedha ameingia shambani mwangu! Mimea yangu inakufa pole pole.",
+            },
+            {
+              role: "ai",
+              text: '🔍 "Mwizi wa fedha" — nikitafuta katika orodha ya majina ya kienyeji...',
+            },
+            {
+              role: "ai",
+              text: '✅ Nimeona! **"Mwizi wa fedha"** = **Spider Mites** (Tetranychus urticae). Jina zuri sana — wanaiba rangi ya kijani na kuacha majani kuwa fedha!\n\nDalili zaidi: utando mwembamba chini ya majani, madoa madogo mengi, majani kuwa kahawia.',
+            },
+            {
+              role: "ai",
+              text: "💊 **Matibabu ya KALRO:**\n1. 🌊 Maji baridi — nyunyizia kwa nguvu chini ya majani (bure!)\n2. 🌿 Neem oil — 5ml kwa lita 1 ya maji + sabuni kidogo\n3. 💊 Dawa: Abamectin (Dynamec) kama hali ni mbaya\n\nAngalia asubuhi kabla ya jua. Wadudu hawa hawapendi baridi na unyevu!",
+            },
+          ],
+        },
+        banned: {
+          lang: "sw",
+          chatMsgs: [
+            {
+              role: "ai",
+              text: "Karibu! Ninakusaidia na matatizo ya shamba lako. Una swali gani?",
+            },
+            {
+              role: "user",
+              text: "Nataka kutumia Gramoxone au Paraquat kumaliza magugu yangu. Ni dawa gani nzuri zaidi?",
+            },
+            {
+              role: "ai",
+              text: "⚠️ [UKAGUZI WA USALAMA — Inashauriana na orodha ya PCPB/KEPHIS...]",
+            },
+            {
+              role: "ai",
+              text: "🚫 **ONYO MUHIMU — Dawa Hatari**\n\n**Paraquat/Gramoxone imepigwa marufuku** katika nchi 53, ikiwa ni pamoja na Uingereza (2007) na EU. Imeunganishwa na:\n• Saratani ya mapafu\n• Ugonjwa wa Parkinson\n• Kushindwa kwa figo\n\nShamba la Mbaria, Meru: 100% ya wakulima 70 walikuwa na Paraquat damu (Daily Nation, Jan 2026).",
+            },
+            {
+              role: "ai",
+              text: "✅ **MBADALA SALAMA (KALRO-idhinishwa):**\n1. **Glufosinate ammonium** (Basta) — salama zaidi, inafanya kazi vizuri\n2. **Kupalilia kwa mkono** au jembe — bora zaidi kwa mazao\n3. **Matandazo (mulch)** — zuia magugu kukua bila kemikali\n4. **Vinegar nyumbani** — kwa magugu madogo\n\nShamba lako na familia yako lazima iwe salama! 💚",
+            },
+          ],
+        },
+        kikuyu: {
+          lang: "ki",
+          chatMsgs: [
+            {
+              role: "ai",
+              text: "Nĩ ũhoro waku wega mũrĩmi! Nĩ niĩ Sauti ya Shamba. Ũĩ na kĩndũ gĩanakũhĩngĩra gĩa mũgũnda waku?",
+            },
+            {
+              role: "user",
+              text: "Viazi ciakwa ciina ugonjwa. Mahuti ni maingi ya kahawia na cinaanguka.",
+            },
+            {
+              role: "ai",
+              text: "🔍 Nĩndĩ nĩkĩhoya database ya KALRO... [Mt. Kenya Potato Diseases]",
+            },
+            {
+              role: "ai",
+              text: "✅ Ũgonjwa ũyũ nĩ **Late Blight** (Phytophthora infestans) — ugonjwa wa viazi ũrĩa mwaganu. Nĩ wa hatarĩ sana — ungĩhara shamba rĩothe ndagĩkorwo ũtĩindagĩrie haraka.\n\nMahuti ma kahawia + kuanguka kwa haraka = Late Blight. Nĩ ngũgũĩ SANA.",
+            },
+            {
+              role: "ai",
+              text: "💊 **Matibabu ya KALRO (Gĩkũyũ region):**\n1. **Ridomil Gold** (Metalaxyl + Mancozeb) — nyunyizia SASA\n2. Ongea na gũtiria mĩaka — njũ 7 o mara\n3. Kabebetha mahuti yothe marĩa magonjwa — yagiathire na moto\n4. Ũmũthĩ: Tagiriria mwĩmbo wa viazi na mahũta njũ 1 tukũ\n\nŨhoro wa biu: KALRO Kirinyaga ☎ 020-2026000",
+            },
+          ],
+        },
+        gusii: {
+          lang: "guz",
+          chatMsgs: [
+            {
+              role: "ai",
+              text: "Amang'ana omong'ana! Niabere Sauti ya Shamba — omogaka wa obori bw'AI. Niwe na ente chisore omosego gwaku?",
+            },
+            {
+              role: "user",
+              text: "Imbida yane igaima. Inabora amakoni amamo na amache.",
+            },
+            {
+              role: "ai",
+              text: "🔍 Naenda database ya KALRO ya Kisii region... [Fall Armyworm — South Rift]",
+            },
+            {
+              role: "ai",
+              text: "✅ **Fall Armyworm** (Spodoptera frugiperda) — gakari kaka ya imbida. Amakoni amamo + amache = ishara ya Fall Armyworm.\n\nGakari go chinyagire arudi ba Kenya bose. Niwe na obobo — igaima yosia irenda korwa ente bw'nyanta.",
+            },
+            {
+              role: "ai",
+              text: "💊 **KALRO Kisii — Koroa:**\n1. **Coragen** (Chlorantraniliprole) — ere omokia omobere — yagire nesa sana\n2. Koroa asubuhi — gakari gaima bweng'e\n3. **Mchanga wa mawe + ash** — kwingira omokia wa imbida\n4. Omosego kwanaba: nabo chake nabo araya — 7 ya masiku\n\n📞 KALRO Kisii: 058-30604\n🌾 KEPHIS hotline: 0800-720-615 (bure)",
+            },
+          ],
+        },
+        live: {
+          lang: currentLang,
+          chatMsgs: [
+            {
+              role: "ai",
+              text: "🎤 LIVE MODE — Sauti ya Shamba AI\n\nPress the 🎤 mic button and speak your farming question in Swahili, Gĩkũyũ, Ekegusii, or English.\n\nOr type your question below.\n\nI will answer using verified KALRO/FAO agricultural knowledge.",
+            },
+          ],
+        },
+      };
+
+      /* ─── SCENARIO SELECTION ─────────────────────────────────────── */
+      function selectScenario(name, btn) {
+        currentScen = name;
+        document
+          .querySelectorAll(".scen-btn")
+          .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        const scen = SCENARIOS[name];
+        if (scen && scen.lang) setLang(scen.lang, true);
+        // Reset both phones
+        nokiaReset();
+        spGoHome();
+        // Load chat scenario on smartphone
+        if (scen && scen.chatMsgs) {
+          setTimeout(() => {
+            spOpenSauti();
+            setTimeout(() => loadScenarioChat(scen.chatMsgs), 400);
+          }, 300);
+        }
+      }
+
+      function loadScenarioChat(msgs) {
+        const container = document.getElementById("spChatMsgs");
+        // Clear
+        container.innerHTML = `<div class="typing-indicator" id="spTyping"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+        let delay = 0;
+        msgs.forEach((m, i) => {
+          delay += m.role === "user" ? 800 : 1200;
+          if (i > 0) delay += 600;
+          setTimeout(() => appendSpMsg(m.role, m.text), delay);
+        });
+      }
+
+      function appendSpMsg(role, text, speak = false) {
+        const container = document.getElementById("spChatMsgs");
+        const d = document.createElement("div");
+        d.className = `sp-msg sp-msg-${role === "ai" ? "ai" : "user"}`;
+        // Convert **bold** markdown
+        const formatted = text
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+          .replace(/\n/g, "<br>");
+        const now = new Date();
+        d.innerHTML = `${formatted}<div class="sp-msg-time">${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}</div>`;
+        const typing = document.getElementById("spTyping");
+        if (typing) container.insertBefore(d, typing);
+        else container.appendChild(d);
+        container.scrollTop = container.scrollHeight;
+        if (speak && role === "ai" && !isMuted)
+          speakText(text.replace(/[*#_]/g, ""));
+        updateStatus(
+          role === "ai" ? "speaking" : "listening",
+          text.substring(0, 60) + "...",
+        );
+      }
+
+      /* ─── LANGUAGE ───────────────────────────────────────────────── */
+      function setLang(code, silent = false) {
+        currentLang = code;
+        document.querySelectorAll(".lang-btn").forEach((b) => {
+          b.classList.toggle(
+            "active",
+            b.textContent.includes(LANGS[code]?.name.substring(0, 4)),
+          );
+        });
+        if (!silent) updateStatus("idle", "Language: " + LANGS[code].name);
+      }
+
+      /* ─── MUTE / VOLUME ──────────────────────────────────────────── */
+      function toggleMute() {
+        isMuted = !isMuted;
+        const btn = document.getElementById("muteBtn");
+        btn.textContent = isMuted ? "🔇 Muted" : "🔊 Sound ON";
+        btn.classList.toggle("active", isMuted);
+        if (synth.speaking) synth.cancel();
+      }
+      function setVolume(v) {
+        volume = parseFloat(v);
+      }
+      function toggleMic() {
+        useMic = !useMic;
+        const btn = document.getElementById("micBtn");
+        btn.textContent = useMic ? "🎤 Mic ON" : "🎤 Use Mic";
+        btn.classList.toggle("active", useMic);
+      }
+
+      /* ─── SPEECH SYNTHESIS ───────────────────────────────────────── */
+      function speakText(text, langCode = null) {
+        if (isMuted || !synth) return;
+        synth.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.volume = volume;
+        utter.rate = 0.92;
+        utter.pitch = 1.05;
+        const lang = langCode || currentLang;
+        const preferred = LANGS[lang]?.voicePref || ["sw-KE", "en-KE"];
+        const voices = synth.getVoices();
+        let chosen = null;
+        for (const pref of preferred) {
+          chosen = voices.find((v) =>
+            v.lang.toLowerCase().startsWith(pref.toLowerCase()),
+          );
+          if (chosen) break;
+        }
+        if (!chosen) chosen = voices.find((v) => v.lang.startsWith("en"));
+        if (chosen) utter.voice = chosen;
+        utter.lang = preferred[0];
+        utter.onstart = () => {
+          updateStatus("speaking", text.substring(0, 80));
+          document.getElementById("waveViz").classList.add("active");
+        };
+        utter.onend = () => {
+          updateStatus("idle", "Ready");
+          document.getElementById("waveViz").classList.remove("active");
+        };
+        synth.speak(utter);
+      }
+
+      /* ─── SPEECH RECOGNITION ─────────────────────────────────────── */
+      function startRecognition(onResult, onEnd) {
+        if (
+          !(
+            "webkitSpeechRecognition" in window || "SpeechRecognition" in window
+          )
+        ) {
+          alert(
+            "Speech recognition not supported in this browser. Try Chrome on Android/Desktop.",
+          );
+          return null;
+        }
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const rec = new SR();
+        rec.continuous = false;
+        rec.interimResults = true;
+        rec.lang = LANGS[currentLang]?.bcp || "sw-KE";
+        rec.onresult = (e) => {
+          const t = Array.from(e.results)
+            .map((r) => r[0].transcript)
+            .join("");
+          updateStatus("listening", "🎤 " + t);
+          if (e.results[e.results.length - 1].isFinal) onResult(t);
+        };
+        rec.onend = () => {
+          if (onEnd) onEnd();
+        };
+        rec.onerror = (e) => {
+          updateStatus("idle", "Mic error: " + e.error);
+          if (onEnd) onEnd();
+        };
+        rec.start();
+        updateStatus("listening", "Listening...");
+        return rec;
+      }
+
+      /* ─── CLAUDE API CALL ────────────────────────────────────────── */
+      async function callClaudeAI(userMessage) {
+        updateStatus("thinking", "Thinking...");
+        const langConfig = LANGS[currentLang];
+        const systemPrompt = `You are Sauti ya Shamba — an AI agricultural advisor for smallholder farmers in Kenya. You speak ${langConfig.name}. 
+
+CRITICAL RULES:
+1. Answer ONLY in ${langConfig.name} (${currentLang === "en" ? "English" : currentLang === "sw" ? "Kiswahili" : currentLang === "ki" ? "Gĩkũyũ" : "Ekegusii"})
+2. Base advice ONLY on KALRO (Kenya Agricultural and Livestock Research Organization) and FAO verified manuals
+3. If a farmer mentions Paraquat, Gramoxone, or any WHO Class 1a/1b pesticide: REFUSE and offer safe alternatives with strong warning
+4. Keep responses SHORT — max 80 words. Farmers are on feature phones.
+5. Use simple language. Format with numbers for steps.
+6. Include KALRO contact if serious: KALRO HQ: 020-2026000
+7. Never recommend unregistered chemicals
+8. Always end with an offer to help more
+
+You know local names: "mwizi wa fedha" = spider mites, "ugonjwa wa maziwa" = late blight, "mdudu mzuri" = beneficial insects.`;
+
+        aiConversationHistory.push({ role: "user", content: userMessage });
+
+        try {
+          const response = await fetch(
+            "https://api.anthropic.com/v1/messages",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                model: "claude-sonnet-4-20250514",
+                max_tokens: 300,
+                system: systemPrompt,
+                messages: aiConversationHistory.slice(-6),
+              }),
+            },
+          );
+          if (!response.ok) throw new Error("API error " + response.status);
+          const data = await response.json();
+          const reply =
+            data.content?.[0]?.text ||
+            "Samahani, kuna tatizo la kiufundi. Jaribu tena.";
+          aiConversationHistory.push({ role: "assistant", content: reply });
+          return reply;
+        } catch (err) {
+          // Fallback offline responses
+          return getFallbackResponse(userMessage);
+        }
+      }
+
+      function getFallbackResponse(msg) {
+        const m = msg.toLowerCase();
+        const lang = currentLang;
+        if (m.includes("paraquat") || m.includes("gramoxone")) {
+          return lang === "sw"
+            ? "🚫 Paraquat ni hatari sana — imepigwa marufuku katika nchi 53. Tumia Glufosinate (Basta) badala yake. Ni salama na inafanya kazi vizuri. Familia yako lazima iwe salama!"
+            : lang === "ki"
+              ? "🚫 Paraquat nĩ ya hatarĩ — ĩthiĩ Glufosinate (Basta). Nĩ ya ũhoro na ĩgĩĩra bata."
+              : "🚫 Paraquat is banned in 53 countries. Use Glufosinate (Basta) instead. Safe and effective. Your family's health matters!";
+        }
+        if (
+          m.includes("fungus") ||
+          m.includes("ukungu") ||
+          m.includes("mold")
+        ) {
+          return lang === "sw"
+            ? "✅ Kwa ukungu: tumia Copper Oxychloride (Cobox) 20g kwa lita 10 maji. Nyunyizia juma 1. Ondoa majani yaliyoathirika. Rudia mara 3. Una maswali zaidi?"
+            : "✅ For fungal disease: use Copper Oxychloride (Cobox) 20g per 10L water. Spray weekly. Remove infected leaves. Repeat 3 times.";
+        }
+        if (
+          m.includes("wadudu") ||
+          m.includes("pest") ||
+          m.includes("insect")
+        ) {
+          return lang === "sw"
+            ? "✅ Kwa wadudu: 1) Neem oil 5ml/lita 2) Pyrethrin 3) Abamectin kwa hali mbaya. Angalia asubuhi kabla ya jua. Una tatizo gani hasa?"
+            : "✅ For pests: 1) Neem oil 5ml/litre 2) Pyrethrin 3) Abamectin for severe cases. Spray early morning. What specific pest do you see?";
+        }
+        return lang === "sw"
+          ? "Asante kwa swali lako! Kwa msaada wa haraka zaidi, piga simu KALRO: 020-2026000 au KEPHIS: 0800-720-615 (bure). Ninaweza kukusaidia zaidi?"
+          : lang === "ki"
+            ? "Tũgũcoka! KALRO: 020-2026000 nĩ makena kũcookerera maũndũ maingi."
+            : "Thank you! For urgent help call KALRO: 020-2026000 or KEPHIS: 0800-720-615 (free). How else can I help?";
+      }
+
+      /* ─── STATUS ─────────────────────────────────────────────────── */
+      function updateStatus(state, text) {
+        const dot = document.getElementById("statusDot");
+        const label = document.getElementById("statusText");
+        const ta = document.getElementById("transcriptArea");
+        dot.className = "status-dot " + state;
+        const stateLabels = {
+          idle: "Ready",
+          calling: "Calling...",
+          active: "Call Active",
+          listening: "Listening...",
+          thinking: "AI Thinking...",
+          speaking: "AI Speaking",
+        };
+        label.textContent = stateLabels[state] || state;
+        ta.textContent = text || "";
+        ta.className =
+          "transcript-area" +
+          (state === "listening"
+            ? " user-speaking"
+            : state === "speaking"
+              ? " ai-speaking"
+              : "");
+      }
+
+      /* ══════════════════════════════════════════════════════════════
+   NOKIA MULIKA MWIZI ENGINE
+══════════════════════════════════════════════════════════════ */
+      let nokiaUSSDFlow = null;
+      let nokiaUSSDCurrent = null;
+      let nokiaDialBuffer = "";
+
+      function nokiaReset() {
+        nokiaMode = "home";
+        nokiaUSSDStep = 0;
+        nokiaUSSDFlow = null;
+        nokiaUSSDCurrent = null;
+        nokiaDialBuffer = "";
+        setNkContent(
+          "SAUTI YA SHAMBA\n━━━━━━━━━━\nToll-Free\n0800-SHAMBA\n\nPress ✅ to Call\nPress # for USSD\nPress * for Menu",
+        );
+        document.getElementById("nkCallBtn").style.background =
+          "linear-gradient(145deg,#2ecc71,#1e8449)";
+        updateStatus("idle", "Ready");
+      }
+
+      function setNkContent(text, isCalling = false) {
+        const el = document.getElementById("nkContent");
+        el.textContent = text;
+        el.className = "nokia-screen-content" + (isCalling ? " calling" : "");
+      }
+
+      function nokiaKey(k) {
+        if (nokiaMode === "home") {
+          nokiaDialBuffer += k;
+          setNkContent(
+            nokiaDialBuffer + "\n\n[Press ✅ to call\n # to confirm USSD]",
+          );
+        } else if (nokiaMode === "ussd" && nokiaUSSDCurrent) {
+          nokiaDialBuffer += k;
+          setNkContent(nokiaUSSDCurrent.d + "\n" + nokiaDialBuffer);
+        }
+      }
+
+      function nokiaCall() {
+        if (nokiaMode === "calling") {
+          return;
+        }
+        nokiaMode = "calling";
+        isCallActive = true;
+        callSeconds = 0;
+        setNkContent(
+          "📞 CALLING...\n━━━━━━━━━━\n0800-SHAMBA\n\nSauti ya Shamba\nPlease wait...",
+          true,
+        );
+        updateStatus("calling", "Dialing 0800-SHAMBA...");
+        // Simulate connection
+        setTimeout(() => {
+          setNkContent(
+            "📞 CONNECTED\n━━━━━━━━━━\n00:00\n\nSauti ya Shamba\nListening...",
+            true,
+          );
+          document.getElementById("nkCallBtn").style.background =
+            "linear-gradient(145deg,#f39c12,#d35400)";
+          const greeting = LANGS[currentLang].greeting;
+          updateStatus("active", "Connected to Sauti ya Shamba");
+          if (!isMuted) speakText(greeting);
+          updateNokiaTimer();
+          // After greeting, if mic is on, start recognition
+          if (useMic) {
+            setTimeout(() => startNokiaMicSession(), 3500);
+          }
+        }, 2000);
+      }
+
+      function updateNokiaTimer() {
+        if (nokiaMode !== "calling") return;
+        callSeconds++;
+        const m = Math.floor(callSeconds / 60)
+          .toString()
+          .padStart(2, "0");
+        const s = (callSeconds % 60).toString().padStart(2, "0");
+        setNkContent(
+          `📞 IN CALL\n━━━━━━━━━━\n${m}:${s}\n\nSauti ya Shamba\n\n[Press # to respond\nEnd=hang up]`,
+          true,
+        );
+        callTimer = setTimeout(updateNokiaTimer, 1000);
+      }
+
+      function startNokiaMicSession() {
+        if (!useMic || nokiaMode !== "calling") return;
+        recognition = startRecognition(
+          async (text) => {
+            setNkContent(
+              `📞 IN CALL\n━━━━━━━━━━\nYou said:\n"${text.substring(0, 50)}..."\n\nWaiting response...`,
+              true,
+            );
+            const reply = await callClaudeAI(text);
+            setNkContent(
+              `📞 IN CALL\n━━━━━━━━━━\nSauti ya Shamba:\n"${reply.substring(0, 70)}..."\n\n[Press # to reply]`,
+              true,
+            );
+            if (!isMuted) speakText(reply);
+          },
+          () => {
+            // Auto restart after a pause
+            if (nokiaMode === "calling" && useMic) {
+              setTimeout(startNokiaMicSession, 2000);
+            }
+          },
+        );
+      }
+
+      function nokiaEnd() {
+        if (callTimer) clearTimeout(callTimer);
+        if (recognition) recognition.stop();
+        if (synth.speaking) synth.cancel();
+        isCallActive = false;
+        nokiaReset();
+      }
+
+      function nokiaSelect() {
+        if (nokiaMode === "home") nokiaCall();
+        else if (nokiaMode === "ussd") nokiaUSSDConfirm();
+      }
+
+      function nokiaDpad(dir) {
+        // Could be used for menu navigation
+      }
+
+      function nokiaUSSD() {
+        nokiaMode = "ussd";
+        nokiaUSSDStep = 0;
+        nokiaUSSDCurrent = null;
+        nokiaDialBuffer = "";
+        const scen = SCENARIOS[currentScen];
+        if (scen && scen.nkUSSD) {
+          nokiaUSSDFlow = scen.nkUSSD;
+          nokiaUSSDCurrent = nokiaUSSDFlow[0];
+          setNkContent(nokiaUSSDCurrent.d);
+          updateStatus("active", "USSD Session Active — *384#");
+        } else {
+          // Default USSD
+          setNkContent(
+            "*384# SAUTI\n━━━━━━━━━━\n1. Crop disease\n2. Pests\n3. Inputs\n4. Market price\n0. Exit\n\nEnter:_",
+          );
+          nokiaUSSDFlow = null;
+        }
+      }
+
+      function nokiaUSSDConfirm() {
+        if (!nokiaUSSDFlow || !nokiaUSSDCurrent) return;
+        const choice = nokiaDialBuffer.trim();
+        nokiaDialBuffer = "";
+        const next = nokiaUSSDCurrent.opts?.[choice];
+        if (!next) {
+          setNkContent(nokiaUSSDCurrent.d + "\nInvalid. Try again.");
+          return;
+        }
+        if (next === "home") {
+          nokiaReset();
+          return;
+        }
+        if (next === "human") {
+          setNkContent(
+            "CONNECTING TO\nAGRONOMIST...\n\nKALRO Expert\nWill call back\nwithin 2 hours.\n\nRef: KA-" +
+              Math.floor(Math.random() * 9000 + 1000),
+          );
+          setTimeout(() => nokiaReset(), 4000);
+          return;
+        }
+        const nextNode = nokiaUSSDFlow.find((n) => n.id === next);
+        if (nextNode) {
+          nokiaUSSDCurrent = nextNode;
+          setNkContent(nextNode.d);
+        }
+      }
+
+      /* ══════════════════════════════════════════════════════════════
+   SMARTPHONE ENGINE
+══════════════════════════════════════════════════════════════ */
+      function spGoHome() {
+        ["spCallScreen", "spChatScreen", "spUSSDScreen", "spSMSScreen"].forEach(
+          (id) => {
+            const el = document.getElementById(id);
+            if (el) {
+              el.style.display = "none";
+            }
+          },
+        );
+        document.getElementById("spHome").style.display = "flex";
+        if (spCallTimerInterval) clearInterval(spCallTimerInterval);
+        if (synth.speaking) synth.cancel();
+        updateStatus("idle", "Ready");
+      }
+
+      function spOpenSauti() {
+        document.getElementById("spHome").style.display = "none";
+        const cs = document.getElementById("spChatScreen");
+        cs.style.display = "flex";
+        cs.style.flexDirection = "column";
+        // If live scenario, just show empty with greeting
+        if (currentScen === "live") {
+          const container = document.getElementById("spChatMsgs");
+          container.innerHTML = `<div class="typing-indicator" id="spTyping"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+          setTimeout(
+            () => appendSpMsg("ai", LANGS[currentLang].greeting, true),
+            600,
+          );
+          aiConversationHistory = [];
+        }
+      }
+
+      function spOpenUSSD() {
+        document.getElementById("spHome").style.display = "none";
+        const us = document.getElementById("spUSSDScreen");
+        us.style.display = "flex";
+        us.style.flexDirection = "column";
+        const box = document.getElementById("spUSSDBox");
+        box.textContent = "Connecting...\n\nDialing *384# on Safaricom...";
+        setTimeout(() => {
+          const scen = SCENARIOS[currentScen];
+          if (scen && scen.nkUSSD) {
+            box.textContent = scen.nkUSSD[0].d;
+          } else {
+            box.textContent =
+              "SAUTI YA SHAMBA\n*384#\n━━━━━━━━━━━━━━━━\n1. Magonjwa ya mazao\n2. Wadudu na viumbe\n3. Mbolea na dawa\n4. Bei za soko leo\n5. Hali ya hewa\n0. Ondoka\n\nChagua nambari:";
+          }
+          updateStatus("active", "USSD Session *384#");
+        }, 1200);
+      }
+
+      function spOpenSMS() {
+        document.getElementById("spHome").style.display = "none";
+        const ss = document.getElementById("spSMSScreen");
+        ss.style.display = "flex";
+        ss.style.flexDirection = "column";
+        const list = document.getElementById("spSMSList");
+        const msgs = [
+          {
+            time: "08:00",
+            msg: "🌦 HALI YA HEWA: Mvua inatarajiwa Kirinyaga leo. Uangalifu kwa Downy Mildew. - Sauti ya Shamba",
+          },
+          {
+            time: "07:30",
+            msg: "⚠️ ONYO: Kuenea kwa Fall Armyworm katika Meru, Embu. Angalia mashamba ya mahindi. - KALRO",
+          },
+          {
+            time: "06:00",
+            msg: "📊 BEI LEO: Kale KES 45-60/kg. Nyanya KES 30-40/kg. Mahindi KES 3,200/90kg. - Nairobi Markets",
+          },
+          {
+            time: "Ij 15:00",
+            msg: "✅ Mshauri wako wa wiki: Msimu wa mvua — panda mbegu mpya. Dawa za prophylactic zinapendekeza. - Sauti ya Shamba",
+          },
+        ];
+        list.innerHTML = msgs
+          .map(
+            (m) => `
+    <div style="border-bottom:1px solid rgba(255,255,255,.06);padding:5px 0;margin-bottom:4px">
+      <div style="font-size:.52rem;color:rgba(255,255,255,.35)">${m.time}</div>
+      <div style="font-size:.6rem;color:rgba(255,255,255,.8);line-height:1.5">${m.msg}</div>
+    </div>`,
+          )
+          .join("");
+      }
+
+      /* SP Call simulation */
+      function spCallSauti() {
+        document.getElementById("spHome").style.display = "none";
+        const cs = document.getElementById("spCallScreen");
+        cs.style.display = "flex";
+        const status = document.getElementById("spCallStatus");
+        status.textContent = "Calling...";
+        status.style.color = "#f59e0b";
+        updateStatus("calling", "Smartphone calling 0800-SHAMBA...");
+        spCallSecs = 0;
+        document.getElementById("spCallTimer").textContent = "00:00";
+        setTimeout(() => {
+          status.textContent = "Connected";
+          status.style.color = getComputedStyle(
+            document.documentElement,
+          ).getPropertyValue("--lime");
+          updateStatus("active", "Call connected");
+          const greeting = LANGS[currentLang].greeting;
+          if (!isMuted) speakText(greeting);
+          spCallTimerInterval = setInterval(() => {
+            spCallSecs++;
+            const m = Math.floor(spCallSecs / 60)
+              .toString()
+              .padStart(2, "0");
+            const s = (spCallSecs % 60).toString().padStart(2, "0");
+            document.getElementById("spCallTimer").textContent = `${m}:${s}`;
+          }, 1000);
+          if (useMic) setTimeout(() => startSpMicSession(), 3000);
+        }, 2000);
+      }
+
+      function startSpMicSession() {
+        recognition = startRecognition(
+          async (text) => {
+            updateStatus("thinking", "Processing: " + text.substring(0, 40));
+            const reply = await callClaudeAI(text);
+            updateStatus("speaking", reply.substring(0, 80));
+            if (!isMuted) speakText(reply);
+          },
+          () => {
+            if (isCallActive && useMic) setTimeout(startSpMicSession, 1500);
+          },
+        );
+      }
+
+      function spEndCall() {
+        if (spCallTimerInterval) clearInterval(spCallTimerInterval);
+        if (recognition) recognition.stop();
+        if (synth.speaking) synth.cancel();
+        isCallActive = false;
+        spGoHome();
+        updateStatus("idle", "Call ended");
+      }
+
+      function spToggleMute() {
+        spMicMuted = !spMicMuted;
+        const btn = document.getElementById("spMuteBtn");
+        btn.textContent = spMicMuted ? "🔇" : "🎤";
+        btn.classList.toggle("muted", spMicMuted);
+        if (spMicMuted && recognition) recognition.stop();
+      }
+
+      function spToggleSpeaker() {
+        spSpeakerOn = !spSpeakerOn;
+        isMuted = !spSpeakerOn;
+        const btn = document.getElementById("spSpeakerBtn");
+        btn.textContent = spSpeakerOn ? "🔊" : "🔇";
+        btn.classList.toggle("on", spSpeakerOn);
+      }
+
+      function spShowKeypad() {
+        // Simple keypad modal — simplified
+        const input = prompt(
+          "Enter DTMF (press a number to respond to IVR menu):",
+          "",
+        );
+        if (input) updateStatus("active", "DTMF: " + input);
+      }
+
+      /* SP Chat / text mode */
+      function spChatKey(e) {
+        if (e.key === "Enter") spSendMsg();
+      }
+
+      async function spSendMsg() {
+        const input = document.getElementById("spChatInput");
+        const text = input.value.trim();
+        if (!text) return;
+        input.value = "";
+        appendSpMsg("user", text);
+        // Show typing
+        const typing = document.getElementById("spTyping");
+        if (typing) typing.style.display = "block";
+        updateStatus("thinking", "Processing your question...");
+        const reply = await callClaudeAI(text);
+        if (typing) typing.style.display = "none";
+        appendSpMsg("ai", reply, true);
+      }
+
+      /* SP Mic button — live voice */
+      let spMicActive = false;
+      function spMicPress() {
+        if (spMicActive) {
+          return;
+        }
+        spMicActive = true;
+        const btn = document.getElementById("spMicBtn");
+        btn.classList.add("listening");
+        recognition = startRecognition(
+          async (text) => {
+            spMicActive = false;
+            btn.classList.remove("listening");
+            appendSpMsg("user", text);
+            const typing = document.getElementById("spTyping");
+            if (typing) typing.style.display = "block";
+            const reply = await callClaudeAI(text);
+            if (typing) typing.style.display = "none";
+            appendSpMsg("ai", reply, true);
+          },
+          () => {
+            spMicActive = false;
+            btn.classList.remove("listening");
+          },
+        );
+      }
+
+      /* USSD input */
+      function spUSSDKey(e) {
+        if (e.key === "Enter") spUSSDSend();
+      }
+      function spUSSDSend() {
+        const input = document.getElementById("spUSSDInput");
+        const choice = input.value.trim();
+        input.value = "";
+        if (!choice) return;
+        const box = document.getElementById("spUSSDBox");
+        const scen = SCENARIOS[currentScen];
+        if (scen && scen.nkUSSD) {
+          const flow = scen.nkUSSD;
+          // Find matching option
+          const current = flow.find((n) => n.d === box.textContent) || flow[0];
+          const next = current.opts?.[choice];
+          if (next === "home") {
+            spGoHome();
+            return;
+          }
+          if (next === "human") {
+            box.textContent =
+              "CONNECTING TO AGRONOMIST...\n\nA KALRO expert will call back within 2 hours.\n\nReference: KA-" +
+              Math.floor(Math.random() * 9000 + 1000) +
+              "\nDate: Today\n\n[Session ended]";
+            return;
+          }
+          const nextNode = flow.find((n) => n.id === next);
+          if (nextNode) box.textContent = nextNode.d;
+          else box.textContent = "Invalid choice. Try again.\n\n" + current.d;
+        } else {
+          box.textContent += "\n> " + choice + "\n\nProcessing...";
+          setTimeout(() => {
+            box.textContent += "\n\n" + getFallbackResponse(choice);
+          }, 800);
+        }
+        box.scrollTop = box.scrollHeight;
+      }
+
+      /* ─── CLOCK ──────────────────────────────────────────────────── */
+      function updateClocks() {
+        const now = new Date();
+        const t =
+          now.getHours().toString().padStart(2, "0") +
+          ":" +
+          now.getMinutes().toString().padStart(2, "0");
+        document.getElementById("nk-time").textContent = t;
+        document.getElementById("sp-time").textContent = t;
+        document.getElementById("spClock").textContent = t;
+      }
+      updateClocks();
+      setInterval(updateClocks, 10000);
+
+      /* ─── VOICES LOAD ────────────────────────────────────────────── */
+      if (synth)
+        synth.onvoiceschanged = () => {
+          synth.getVoices();
+        };
+
+      /* ─── INITIAL DEFAULT SCENARIO ──────────────────────────────── */
+      window.addEventListener("load", () => {
+        selectScenario("fungus", document.querySelector(".scen-btn.active"));
+      });
+    </script>
+  </body>
+</html>
